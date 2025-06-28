@@ -42,3 +42,24 @@ service PostService {
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
   rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
 }
+
+service AuthService {
+    rpc VKAuth(VKAuthRequest) returns (VKAuthResponse);
+    rpc GetVKAuthURL(GetVKAuthURLRequest) returns (GetVKAuthURLResponse);
+}
+
+message VKAuthRequest {
+    string code = 1;
+}
+
+message VKAuthResponse {
+    string token = 1;
+    string user_id = 2;
+}
+
+message GetVKAuthURLRequest {
+}
+
+message GetVKAuthURLResponse {
+    string url = 1;
+}

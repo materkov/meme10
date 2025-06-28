@@ -5,9 +5,18 @@ import (
 
 	"socialnet/proto/posts"
 	"socialnet/service"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	srv := posts.NewPostServiceServer(service.NewServer())
-	http.ListenAndServe(":8080", srv)
+	_ = godotenv.Load()
+
+	postsSrv := service.NewPostsServer()
+	authSrv := service.NewAuthServer()
+
+	http.Handle(posts.PostServicePathPrefix, corsHandler(posts.NewPostServiceServer(postsSrv)))
+	http.Handle(posts.AuthServicePathPrefix, corsHandler(posts.NewAuthServiceServer(authSrv)))
+
+	http.ListenAndServe(":8080", nil)
 }

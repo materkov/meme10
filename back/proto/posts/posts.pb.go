@@ -354,6 +354,182 @@ func (x *GetFeedResponse) GetPosts() []*Post {
 	return nil
 }
 
+type VKAuthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VKAuthRequest) Reset() {
+	*x = VKAuthRequest{}
+	mi := &file_proto_posts_posts_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VKAuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VKAuthRequest) ProtoMessage() {}
+
+func (x *VKAuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_posts_posts_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VKAuthRequest.ProtoReflect.Descriptor instead.
+func (*VKAuthRequest) Descriptor() ([]byte, []int) {
+	return file_proto_posts_posts_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *VKAuthRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+type VKAuthResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VKAuthResponse) Reset() {
+	*x = VKAuthResponse{}
+	mi := &file_proto_posts_posts_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VKAuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VKAuthResponse) ProtoMessage() {}
+
+func (x *VKAuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_posts_posts_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VKAuthResponse.ProtoReflect.Descriptor instead.
+func (*VKAuthResponse) Descriptor() ([]byte, []int) {
+	return file_proto_posts_posts_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *VKAuthResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *VKAuthResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetVKAuthURLRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVKAuthURLRequest) Reset() {
+	*x = GetVKAuthURLRequest{}
+	mi := &file_proto_posts_posts_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVKAuthURLRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVKAuthURLRequest) ProtoMessage() {}
+
+func (x *GetVKAuthURLRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_posts_posts_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVKAuthURLRequest.ProtoReflect.Descriptor instead.
+func (*GetVKAuthURLRequest) Descriptor() ([]byte, []int) {
+	return file_proto_posts_posts_proto_rawDescGZIP(), []int{9}
+}
+
+type GetVKAuthURLResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVKAuthURLResponse) Reset() {
+	*x = GetVKAuthURLResponse{}
+	mi := &file_proto_posts_posts_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVKAuthURLResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVKAuthURLResponse) ProtoMessage() {}
+
+func (x *GetVKAuthURLResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_posts_posts_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVKAuthURLResponse.ProtoReflect.Descriptor instead.
+func (*GetVKAuthURLResponse) Descriptor() ([]byte, []int) {
+	return file_proto_posts_posts_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetVKAuthURLResponse) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 var File_proto_posts_posts_proto protoreflect.FileDescriptor
 
 const file_proto_posts_posts_proto_rawDesc = "" +
@@ -376,12 +552,23 @@ const file_proto_posts_posts_proto_rawDesc = "" +
 	"\x04post\x18\x01 \x01(\v2\x0f.socialnet.PostR\x04post\"\x10\n" +
 	"\x0eGetFeedRequest\"8\n" +
 	"\x0fGetFeedResponse\x12%\n" +
-	"\x05posts\x18\x01 \x03(\v2\x0f.socialnet.PostR\x05posts2\xdc\x01\n" +
+	"\x05posts\x18\x01 \x03(\v2\x0f.socialnet.PostR\x05posts\"#\n" +
+	"\rVKAuthRequest\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\"?\n" +
+	"\x0eVKAuthResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x15\n" +
+	"\x13GetVKAuthURLRequest\"(\n" +
+	"\x14GetVKAuthURLResponse\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url2\xdc\x01\n" +
 	"\vPostService\x12@\n" +
 	"\aAddPost\x12\x19.socialnet.AddPostRequest\x1a\x1a.socialnet.AddPostResponse\x12I\n" +
 	"\n" +
 	"DeletePost\x12\x1c.socialnet.DeletePostRequest\x1a\x1d.socialnet.DeletePostResponse\x12@\n" +
-	"\aGetFeed\x12\x19.socialnet.GetFeedRequest\x1a\x1a.socialnet.GetFeedResponseB\x17Z\x15socialnet/proto/postsb\x06proto3"
+	"\aGetFeed\x12\x19.socialnet.GetFeedRequest\x1a\x1a.socialnet.GetFeedResponse2\x9d\x01\n" +
+	"\vAuthService\x12=\n" +
+	"\x06VKAuth\x12\x18.socialnet.VKAuthRequest\x1a\x19.socialnet.VKAuthResponse\x12O\n" +
+	"\fGetVKAuthURL\x12\x1e.socialnet.GetVKAuthURLRequest\x1a\x1f.socialnet.GetVKAuthURLResponseB\x17Z\x15socialnet/proto/postsb\x06proto3"
 
 var (
 	file_proto_posts_posts_proto_rawDescOnce sync.Once
@@ -395,7 +582,7 @@ func file_proto_posts_posts_proto_rawDescGZIP() []byte {
 	return file_proto_posts_posts_proto_rawDescData
 }
 
-var file_proto_posts_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_posts_posts_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_proto_posts_posts_proto_goTypes = []any{
 	(*Post)(nil),                  // 0: socialnet.Post
 	(*AddPostRequest)(nil),        // 1: socialnet.AddPostRequest
@@ -404,24 +591,32 @@ var file_proto_posts_posts_proto_goTypes = []any{
 	(*DeletePostResponse)(nil),    // 4: socialnet.DeletePostResponse
 	(*GetFeedRequest)(nil),        // 5: socialnet.GetFeedRequest
 	(*GetFeedResponse)(nil),       // 6: socialnet.GetFeedResponse
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*VKAuthRequest)(nil),         // 7: socialnet.VKAuthRequest
+	(*VKAuthResponse)(nil),        // 8: socialnet.VKAuthResponse
+	(*GetVKAuthURLRequest)(nil),   // 9: socialnet.GetVKAuthURLRequest
+	(*GetVKAuthURLResponse)(nil),  // 10: socialnet.GetVKAuthURLResponse
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_proto_posts_posts_proto_depIdxs = []int32{
-	7, // 0: socialnet.Post.created_at:type_name -> google.protobuf.Timestamp
-	0, // 1: socialnet.AddPostResponse.post:type_name -> socialnet.Post
-	0, // 2: socialnet.DeletePostResponse.post:type_name -> socialnet.Post
-	0, // 3: socialnet.GetFeedResponse.posts:type_name -> socialnet.Post
-	1, // 4: socialnet.PostService.AddPost:input_type -> socialnet.AddPostRequest
-	3, // 5: socialnet.PostService.DeletePost:input_type -> socialnet.DeletePostRequest
-	5, // 6: socialnet.PostService.GetFeed:input_type -> socialnet.GetFeedRequest
-	2, // 7: socialnet.PostService.AddPost:output_type -> socialnet.AddPostResponse
-	4, // 8: socialnet.PostService.DeletePost:output_type -> socialnet.DeletePostResponse
-	6, // 9: socialnet.PostService.GetFeed:output_type -> socialnet.GetFeedResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	11, // 0: socialnet.Post.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 1: socialnet.AddPostResponse.post:type_name -> socialnet.Post
+	0,  // 2: socialnet.DeletePostResponse.post:type_name -> socialnet.Post
+	0,  // 3: socialnet.GetFeedResponse.posts:type_name -> socialnet.Post
+	1,  // 4: socialnet.PostService.AddPost:input_type -> socialnet.AddPostRequest
+	3,  // 5: socialnet.PostService.DeletePost:input_type -> socialnet.DeletePostRequest
+	5,  // 6: socialnet.PostService.GetFeed:input_type -> socialnet.GetFeedRequest
+	7,  // 7: socialnet.AuthService.VKAuth:input_type -> socialnet.VKAuthRequest
+	9,  // 8: socialnet.AuthService.GetVKAuthURL:input_type -> socialnet.GetVKAuthURLRequest
+	2,  // 9: socialnet.PostService.AddPost:output_type -> socialnet.AddPostResponse
+	4,  // 10: socialnet.PostService.DeletePost:output_type -> socialnet.DeletePostResponse
+	6,  // 11: socialnet.PostService.GetFeed:output_type -> socialnet.GetFeedResponse
+	8,  // 12: socialnet.AuthService.VKAuth:output_type -> socialnet.VKAuthResponse
+	10, // 13: socialnet.AuthService.GetVKAuthURL:output_type -> socialnet.GetVKAuthURLResponse
+	9,  // [9:14] is the sub-list for method output_type
+	4,  // [4:9] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_proto_posts_posts_proto_init() }
@@ -435,9 +630,9 @@ func file_proto_posts_posts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_posts_posts_proto_rawDesc), len(file_proto_posts_posts_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_proto_posts_posts_proto_goTypes,
 		DependencyIndexes: file_proto_posts_posts_proto_depIdxs,

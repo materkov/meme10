@@ -1079,6 +1079,779 @@ func (s *postServiceServer) PathPrefix() string {
 	return baseServicePath(s.pathPrefix, "socialnet", "PostService")
 }
 
+// =====================
+// AuthService Interface
+// =====================
+
+type AuthService interface {
+	VKAuth(context.Context, *VKAuthRequest) (*VKAuthResponse, error)
+
+	GetVKAuthURL(context.Context, *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error)
+}
+
+// ===========================
+// AuthService Protobuf Client
+// ===========================
+
+type authServiceProtobufClient struct {
+	client      HTTPClient
+	urls        [2]string
+	interceptor twirp.Interceptor
+	opts        twirp.ClientOptions
+}
+
+// NewAuthServiceProtobufClient creates a Protobuf client that implements the AuthService interface.
+// It communicates using Protobuf and can be configured with a custom HTTPClient.
+func NewAuthServiceProtobufClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) AuthService {
+	if c, ok := client.(*http.Client); ok {
+		client = withoutRedirects(c)
+	}
+
+	clientOpts := twirp.ClientOptions{}
+	for _, o := range opts {
+		o(&clientOpts)
+	}
+
+	// Using ReadOpt allows backwards and forwards compatibility with new options in the future
+	literalURLs := false
+	_ = clientOpts.ReadOpt("literalURLs", &literalURLs)
+	var pathPrefix string
+	if ok := clientOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
+		pathPrefix = "/twirp" // default prefix
+	}
+
+	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
+	serviceURL := sanitizeBaseURL(baseURL)
+	serviceURL += baseServicePath(pathPrefix, "socialnet", "AuthService")
+	urls := [2]string{
+		serviceURL + "VKAuth",
+		serviceURL + "GetVKAuthURL",
+	}
+
+	return &authServiceProtobufClient{
+		client:      client,
+		urls:        urls,
+		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
+		opts:        clientOpts,
+	}
+}
+
+func (c *authServiceProtobufClient) VKAuth(ctx context.Context, in *VKAuthRequest) (*VKAuthResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "socialnet")
+	ctx = ctxsetters.WithServiceName(ctx, "AuthService")
+	ctx = ctxsetters.WithMethodName(ctx, "VKAuth")
+	caller := c.callVKAuth
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *VKAuthRequest) (*VKAuthResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VKAuthRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VKAuthRequest) when calling interceptor")
+					}
+					return c.callVKAuth(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VKAuthResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VKAuthResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *authServiceProtobufClient) callVKAuth(ctx context.Context, in *VKAuthRequest) (*VKAuthResponse, error) {
+	out := new(VKAuthResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *authServiceProtobufClient) GetVKAuthURL(ctx context.Context, in *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "socialnet")
+	ctx = ctxsetters.WithServiceName(ctx, "AuthService")
+	ctx = ctxsetters.WithMethodName(ctx, "GetVKAuthURL")
+	caller := c.callGetVKAuthURL
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetVKAuthURLRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetVKAuthURLRequest) when calling interceptor")
+					}
+					return c.callGetVKAuthURL(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetVKAuthURLResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetVKAuthURLResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *authServiceProtobufClient) callGetVKAuthURL(ctx context.Context, in *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+	out := new(GetVKAuthURLResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+// =======================
+// AuthService JSON Client
+// =======================
+
+type authServiceJSONClient struct {
+	client      HTTPClient
+	urls        [2]string
+	interceptor twirp.Interceptor
+	opts        twirp.ClientOptions
+}
+
+// NewAuthServiceJSONClient creates a JSON client that implements the AuthService interface.
+// It communicates using JSON and can be configured with a custom HTTPClient.
+func NewAuthServiceJSONClient(baseURL string, client HTTPClient, opts ...twirp.ClientOption) AuthService {
+	if c, ok := client.(*http.Client); ok {
+		client = withoutRedirects(c)
+	}
+
+	clientOpts := twirp.ClientOptions{}
+	for _, o := range opts {
+		o(&clientOpts)
+	}
+
+	// Using ReadOpt allows backwards and forwards compatibility with new options in the future
+	literalURLs := false
+	_ = clientOpts.ReadOpt("literalURLs", &literalURLs)
+	var pathPrefix string
+	if ok := clientOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
+		pathPrefix = "/twirp" // default prefix
+	}
+
+	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
+	serviceURL := sanitizeBaseURL(baseURL)
+	serviceURL += baseServicePath(pathPrefix, "socialnet", "AuthService")
+	urls := [2]string{
+		serviceURL + "VKAuth",
+		serviceURL + "GetVKAuthURL",
+	}
+
+	return &authServiceJSONClient{
+		client:      client,
+		urls:        urls,
+		interceptor: twirp.ChainInterceptors(clientOpts.Interceptors...),
+		opts:        clientOpts,
+	}
+}
+
+func (c *authServiceJSONClient) VKAuth(ctx context.Context, in *VKAuthRequest) (*VKAuthResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "socialnet")
+	ctx = ctxsetters.WithServiceName(ctx, "AuthService")
+	ctx = ctxsetters.WithMethodName(ctx, "VKAuth")
+	caller := c.callVKAuth
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *VKAuthRequest) (*VKAuthResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VKAuthRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VKAuthRequest) when calling interceptor")
+					}
+					return c.callVKAuth(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VKAuthResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VKAuthResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *authServiceJSONClient) callVKAuth(ctx context.Context, in *VKAuthRequest) (*VKAuthResponse, error) {
+	out := new(VKAuthResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[0], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+func (c *authServiceJSONClient) GetVKAuthURL(ctx context.Context, in *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "socialnet")
+	ctx = ctxsetters.WithServiceName(ctx, "AuthService")
+	ctx = ctxsetters.WithMethodName(ctx, "GetVKAuthURL")
+	caller := c.callGetVKAuthURL
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetVKAuthURLRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetVKAuthURLRequest) when calling interceptor")
+					}
+					return c.callGetVKAuthURL(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetVKAuthURLResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetVKAuthURLResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *authServiceJSONClient) callGetVKAuthURL(ctx context.Context, in *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+	out := new(GetVKAuthURLResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[1], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
+// ==========================
+// AuthService Server Handler
+// ==========================
+
+type authServiceServer struct {
+	AuthService
+	interceptor      twirp.Interceptor
+	hooks            *twirp.ServerHooks
+	pathPrefix       string // prefix for routing
+	jsonSkipDefaults bool   // do not include unpopulated fields (default values) in the response
+	jsonCamelCase    bool   // JSON fields are serialized as lowerCamelCase rather than keeping the original proto names
+}
+
+// NewAuthServiceServer builds a TwirpServer that can be used as an http.Handler to handle
+// HTTP requests that are routed to the right method in the provided svc implementation.
+// The opts are twirp.ServerOption modifiers, for example twirp.WithServerHooks(hooks).
+func NewAuthServiceServer(svc AuthService, opts ...interface{}) TwirpServer {
+	serverOpts := newServerOpts(opts)
+
+	// Using ReadOpt allows backwards and forwards compatibility with new options in the future
+	jsonSkipDefaults := false
+	_ = serverOpts.ReadOpt("jsonSkipDefaults", &jsonSkipDefaults)
+	jsonCamelCase := false
+	_ = serverOpts.ReadOpt("jsonCamelCase", &jsonCamelCase)
+	var pathPrefix string
+	if ok := serverOpts.ReadOpt("pathPrefix", &pathPrefix); !ok {
+		pathPrefix = "/twirp" // default prefix
+	}
+
+	return &authServiceServer{
+		AuthService:      svc,
+		hooks:            serverOpts.Hooks,
+		interceptor:      twirp.ChainInterceptors(serverOpts.Interceptors...),
+		pathPrefix:       pathPrefix,
+		jsonSkipDefaults: jsonSkipDefaults,
+		jsonCamelCase:    jsonCamelCase,
+	}
+}
+
+// writeError writes an HTTP response with a valid Twirp error format, and triggers hooks.
+// If err is not a twirp.Error, it will get wrapped with twirp.InternalErrorWith(err)
+func (s *authServiceServer) writeError(ctx context.Context, resp http.ResponseWriter, err error) {
+	writeError(ctx, resp, err, s.hooks)
+}
+
+// handleRequestBodyError is used to handle error when the twirp server cannot read request
+func (s *authServiceServer) handleRequestBodyError(ctx context.Context, resp http.ResponseWriter, msg string, err error) {
+	if context.Canceled == ctx.Err() {
+		s.writeError(ctx, resp, twirp.NewError(twirp.Canceled, "failed to read request: context canceled"))
+		return
+	}
+	if context.DeadlineExceeded == ctx.Err() {
+		s.writeError(ctx, resp, twirp.NewError(twirp.DeadlineExceeded, "failed to read request: deadline exceeded"))
+		return
+	}
+	s.writeError(ctx, resp, twirp.WrapError(malformedRequestError(msg), err))
+}
+
+// AuthServicePathPrefix is a convenience constant that may identify URL paths.
+// Should be used with caution, it only matches routes generated by Twirp Go clients,
+// with the default "/twirp" prefix and default CamelCase service and method names.
+// More info: https://twitchtv.github.io/twirp/docs/routing.html
+const AuthServicePathPrefix = "/twirp/socialnet.AuthService/"
+
+func (s *authServiceServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	ctx = ctxsetters.WithPackageName(ctx, "socialnet")
+	ctx = ctxsetters.WithServiceName(ctx, "AuthService")
+	ctx = ctxsetters.WithResponseWriter(ctx, resp)
+
+	var err error
+	ctx, err = callRequestReceived(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	if req.Method != "POST" {
+		msg := fmt.Sprintf("unsupported method %q (only POST is allowed)", req.Method)
+		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
+		return
+	}
+
+	// Verify path format: [<prefix>]/<package>.<Service>/<Method>
+	prefix, pkgService, method := parseTwirpPath(req.URL.Path)
+	if pkgService != "socialnet.AuthService" {
+		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
+		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
+		return
+	}
+	if prefix != s.pathPrefix {
+		msg := fmt.Sprintf("invalid path prefix %q, expected %q, on path %q", prefix, s.pathPrefix, req.URL.Path)
+		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
+		return
+	}
+
+	switch method {
+	case "VKAuth":
+		s.serveVKAuth(ctx, resp, req)
+		return
+	case "GetVKAuthURL":
+		s.serveGetVKAuthURL(ctx, resp, req)
+		return
+	default:
+		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
+		s.writeError(ctx, resp, badRouteError(msg, req.Method, req.URL.Path))
+		return
+	}
+}
+
+func (s *authServiceServer) serveVKAuth(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveVKAuthJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveVKAuthProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *authServiceServer) serveVKAuthJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "VKAuth")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(VKAuthRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.AuthService.VKAuth
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *VKAuthRequest) (*VKAuthResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VKAuthRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VKAuthRequest) when calling interceptor")
+					}
+					return s.AuthService.VKAuth(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VKAuthResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VKAuthResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *VKAuthResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *VKAuthResponse and nil error while calling VKAuth. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *authServiceServer) serveVKAuthProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "VKAuth")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(VKAuthRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.AuthService.VKAuth
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *VKAuthRequest) (*VKAuthResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*VKAuthRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*VKAuthRequest) when calling interceptor")
+					}
+					return s.AuthService.VKAuth(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*VKAuthResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*VKAuthResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *VKAuthResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *VKAuthResponse and nil error while calling VKAuth. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *authServiceServer) serveGetVKAuthURL(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetVKAuthURLJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetVKAuthURLProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *authServiceServer) serveGetVKAuthURLJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetVKAuthURL")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetVKAuthURLRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.AuthService.GetVKAuthURL
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetVKAuthURLRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetVKAuthURLRequest) when calling interceptor")
+					}
+					return s.AuthService.GetVKAuthURL(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetVKAuthURLResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetVKAuthURLResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetVKAuthURLResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetVKAuthURLResponse and nil error while calling GetVKAuthURL. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *authServiceServer) serveGetVKAuthURLProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetVKAuthURL")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := io.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetVKAuthURLRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.AuthService.GetVKAuthURL
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetVKAuthURLRequest) (*GetVKAuthURLResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetVKAuthURLRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetVKAuthURLRequest) when calling interceptor")
+					}
+					return s.AuthService.GetVKAuthURL(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetVKAuthURLResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetVKAuthURLResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetVKAuthURLResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetVKAuthURLResponse and nil error while calling GetVKAuthURL. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *authServiceServer) ServiceDescriptor() ([]byte, int) {
+	return twirpFileDescriptor0, 1
+}
+
+func (s *authServiceServer) ProtocGenTwirpVersion() string {
+	return "v8.1.3"
+}
+
+// PathPrefix returns the base service path, in the form: "/<prefix>/<package>.<Service>/"
+// that is everything in a Twirp route except for the <Method>. This can be used for routing,
+// for example to identify the requests that are targeted to this service in a mux.
+func (s *authServiceServer) PathPrefix() string {
+	return baseServicePath(s.pathPrefix, "socialnet", "AuthService")
+}
+
 // =====
 // Utils
 // =====
@@ -1645,29 +2418,36 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 371 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xd1, 0x6a, 0xe2, 0x40,
-	0x14, 0x65, 0x34, 0xae, 0xe6, 0x0a, 0xba, 0x3b, 0xb0, 0x98, 0xcd, 0xee, 0xb2, 0x21, 0x6e, 0x21,
-	0x4f, 0x09, 0x58, 0x28, 0xf5, 0x4d, 0x4b, 0x69, 0xf1, 0xad, 0xa4, 0x7d, 0xea, 0x8b, 0x44, 0xe7,
-	0xd6, 0x06, 0xd4, 0x49, 0x33, 0xd7, 0xd2, 0x8f, 0xe9, 0xa7, 0xf5, 0x63, 0x8a, 0x93, 0x18, 0x13,
-	0x6b, 0x1f, 0xfa, 0x12, 0x72, 0xef, 0x39, 0x73, 0xce, 0xbd, 0x67, 0x06, 0x7a, 0x49, 0x2a, 0x49,
-	0x06, 0x89, 0x54, 0xa4, 0xb2, 0xaf, 0xaf, 0x3b, 0xdc, 0x54, 0x72, 0x1e, 0x47, 0xcb, 0x35, 0x92,
-	0xfd, 0x6f, 0x21, 0xe5, 0x62, 0x89, 0x81, 0x06, 0x66, 0x9b, 0x87, 0x80, 0xe2, 0x15, 0x2a, 0x8a,
-	0x56, 0x49, 0xc6, 0x75, 0x5f, 0x19, 0x18, 0x37, 0x52, 0x11, 0xef, 0x40, 0x2d, 0x16, 0x16, 0x73,
-	0x98, 0x57, 0x0f, 0x6b, 0xb1, 0xe0, 0xbf, 0xc1, 0x8c, 0x36, 0xf4, 0x28, 0xd3, 0x69, 0x2c, 0xac,
-	0x9a, 0xc3, 0x3c, 0x33, 0x6c, 0x65, 0x8d, 0x89, 0xe0, 0x1c, 0x0c, 0xc2, 0x17, 0xb2, 0xea, 0xba,
-	0xaf, 0xff, 0xf9, 0x10, 0x60, 0x9e, 0x62, 0x44, 0x28, 0xa6, 0x11, 0x59, 0x86, 0xc3, 0xbc, 0xf6,
-	0xc0, 0xf6, 0x33, 0x7f, 0x7f, 0xe7, 0xef, 0xdf, 0xed, 0xfc, 0x43, 0x33, 0x67, 0x8f, 0x89, 0x5b,
-	0xd0, 0x14, 0xb8, 0x44, 0x42, 0x61, 0x35, 0x1c, 0xe6, 0xb5, 0xc2, 0x5d, 0xe9, 0xfe, 0x87, 0xce,
-	0x58, 0x88, 0xed, 0x80, 0x21, 0x3e, 0x6d, 0x50, 0x51, 0x61, 0xcd, 0xf6, 0xd6, 0xee, 0x19, 0x74,
-	0x0b, 0x96, 0x4a, 0xe4, 0x5a, 0x21, 0xef, 0x83, 0xb1, 0x8d, 0x44, 0xd3, 0xda, 0x83, 0xae, 0x5f,
-	0x44, 0xe2, 0x6b, 0x9a, 0x06, 0xdd, 0x3e, 0xfc, 0xb8, 0xd4, 0x46, 0x65, 0x83, 0x83, 0x20, 0xdc,
-	0x21, 0xf0, 0x32, 0xe9, 0x2b, 0xfa, 0xdf, 0xa1, 0x73, 0x8d, 0x74, 0x85, 0x28, 0x72, 0x71, 0xf7,
-	0x1c, 0xba, 0x45, 0x27, 0x57, 0x3a, 0x81, 0x86, 0xbe, 0x3c, 0x8b, 0x39, 0xf5, 0x63, 0x52, 0x19,
-	0x3a, 0x78, 0x63, 0xd0, 0xde, 0xd6, 0xb7, 0x98, 0x3e, 0xc7, 0x73, 0xe4, 0x23, 0x68, 0xe6, 0x3b,
-	0xf3, 0x5f, 0xa5, 0x23, 0xd5, 0xb4, 0x6c, 0xfb, 0x18, 0x94, 0x1b, 0x4f, 0x00, 0xf6, 0x8b, 0xf1,
-	0x3f, 0x25, 0xe6, 0x87, 0x50, 0xec, 0xbf, 0x9f, 0xa0, 0xb9, 0xd4, 0x08, 0x9a, 0xf9, 0x5a, 0x95,
-	0x61, 0xaa, 0xcb, 0x57, 0x86, 0x39, 0x48, 0xe1, 0xa2, 0x77, 0xff, 0xb3, 0x00, 0x83, 0xd2, 0xc3,
-	0x9e, 0x7d, 0xd3, 0xc5, 0xe9, 0x7b, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6f, 0x75, 0xe2, 0x12, 0xee,
-	0x02, 0x00, 0x00,
+	// 487 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
+	0x14, 0xd4, 0xe6, 0xb3, 0x79, 0x81, 0xa4, 0x2c, 0xad, 0xe2, 0x9a, 0x8f, 0x5a, 0x0e, 0x48, 0x3e,
+	0x39, 0x52, 0x90, 0x10, 0x3d, 0x20, 0x1a, 0x84, 0xa8, 0x22, 0x90, 0x40, 0xe6, 0xe3, 0xc0, 0xa5,
+	0x72, 0xb3, 0x8f, 0xd6, 0x22, 0xcd, 0x06, 0xfb, 0x19, 0xf1, 0x63, 0xe0, 0x9f, 0xf1, 0x63, 0x90,
+	0x77, 0xd7, 0xee, 0x3a, 0x24, 0x07, 0x2e, 0xd1, 0xee, 0x9b, 0xc9, 0xcc, 0xdb, 0x19, 0xc9, 0x30,
+	0x5a, 0xa7, 0x92, 0xe4, 0x64, 0x2d, 0x33, 0xca, 0xf4, 0x6f, 0xa8, 0x26, 0xbc, 0x97, 0xc9, 0x45,
+	0x12, 0x2f, 0x57, 0x48, 0xee, 0xf1, 0xa5, 0x94, 0x97, 0x4b, 0x9c, 0x28, 0xe0, 0x22, 0xff, 0x3a,
+	0xa1, 0xe4, 0x1a, 0x33, 0x8a, 0xaf, 0xd7, 0x9a, 0xeb, 0xff, 0x62, 0xd0, 0x7a, 0x2f, 0x33, 0xe2,
+	0x03, 0x68, 0x24, 0xc2, 0x61, 0x1e, 0x0b, 0x9a, 0x51, 0x23, 0x11, 0xfc, 0x1e, 0xf4, 0xe2, 0x9c,
+	0xae, 0x64, 0x7a, 0x9e, 0x08, 0xa7, 0xe1, 0xb1, 0xa0, 0x17, 0xed, 0xe9, 0xc1, 0x5c, 0x70, 0x0e,
+	0x2d, 0xc2, 0x9f, 0xe4, 0x34, 0xd5, 0x5c, 0x9d, 0xf9, 0x09, 0xc0, 0x22, 0xc5, 0x98, 0x50, 0x9c,
+	0xc7, 0xe4, 0xb4, 0x3c, 0x16, 0xf4, 0xa7, 0x6e, 0xa8, 0xfd, 0xc3, 0xd2, 0x3f, 0xfc, 0x58, 0xfa,
+	0x47, 0x3d, 0xc3, 0x9e, 0x11, 0x77, 0xa0, 0x2b, 0x70, 0x89, 0x84, 0xc2, 0x69, 0x7b, 0x2c, 0xd8,
+	0x8b, 0xca, 0xab, 0xff, 0x08, 0x06, 0x33, 0x21, 0x8a, 0x05, 0x23, 0xfc, 0x9e, 0x63, 0x46, 0x95,
+	0x35, 0xbb, 0xb1, 0xf6, 0x9f, 0xc2, 0xb0, 0x62, 0x65, 0x6b, 0xb9, 0xca, 0x90, 0x8f, 0xa1, 0x55,
+	0x44, 0xa2, 0x68, 0xfd, 0xe9, 0x30, 0xac, 0x22, 0x09, 0x15, 0x4d, 0x81, 0xfe, 0x18, 0xee, 0xbc,
+	0x52, 0x46, 0xb6, 0xc1, 0x46, 0x10, 0xfe, 0x09, 0x70, 0x9b, 0xf4, 0x3f, 0xfa, 0xfb, 0x30, 0x38,
+	0x43, 0x7a, 0x8d, 0x28, 0x8c, 0xb8, 0xff, 0x0c, 0x86, 0xd5, 0xc4, 0x28, 0x3d, 0x86, 0xb6, 0x2a,
+	0xcf, 0x61, 0x5e, 0x73, 0x9b, 0x94, 0x46, 0xfd, 0x31, 0xdc, 0xfe, 0xfc, 0x66, 0x96, 0xd3, 0x95,
+	0x15, 0xc4, 0x42, 0x0a, 0x2c, 0x83, 0x28, 0xce, 0xfe, 0x0b, 0x18, 0x94, 0x24, 0xa3, 0x7e, 0x00,
+	0x6d, 0x92, 0xdf, 0x70, 0x65, 0x68, 0xfa, 0xc2, 0x47, 0xd0, 0xcd, 0x33, 0xb4, 0xaa, 0xed, 0x14,
+	0xd7, 0xb9, 0xf0, 0x0f, 0xe1, 0xee, 0x19, 0x92, 0xd6, 0xf8, 0x14, 0xbd, 0x2d, 0xd7, 0x0e, 0xe0,
+	0xa0, 0x3e, 0x36, 0xea, 0xfb, 0xd0, 0xcc, 0xd3, 0xa5, 0xd1, 0x2e, 0x8e, 0xd3, 0x3f, 0x0c, 0xfa,
+	0xc5, 0xda, 0x1f, 0x30, 0xfd, 0x91, 0x2c, 0x90, 0x9f, 0x42, 0xd7, 0x54, 0xc3, 0x8f, 0xac, 0x97,
+	0xd5, 0x4b, 0x75, 0xdd, 0x6d, 0x90, 0xf1, 0x98, 0x03, 0xdc, 0xe4, 0xcf, 0xef, 0x5b, 0xcc, 0x7f,
+	0xba, 0x73, 0x1f, 0xec, 0x40, 0x8d, 0xd4, 0x29, 0x74, 0x4d, 0xfa, 0xb5, 0x65, 0xea, 0x1d, 0xd5,
+	0x96, 0xd9, 0x28, 0x6b, 0xfa, 0x9b, 0x41, 0xbf, 0x08, 0xa1, 0x7c, 0xde, 0x73, 0xe8, 0xe8, 0x54,
+	0xb8, 0x63, 0xfd, 0xab, 0x56, 0x94, 0x7b, 0xb4, 0x05, 0x31, 0x0b, 0xbd, 0x83, 0x5b, 0x76, 0xae,
+	0xfc, 0x61, 0xdd, 0x7a, 0xb3, 0x07, 0xf7, 0x78, 0x27, 0xae, 0x05, 0x5f, 0x8e, 0xbe, 0x1c, 0x56,
+	0x8c, 0x89, 0xf5, 0x7d, 0xb8, 0xe8, 0xa8, 0xcb, 0x93, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x81,
+	0xd2, 0xf1, 0x9e, 0x35, 0x04, 0x00, 0x00,
 }

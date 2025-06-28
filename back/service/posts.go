@@ -12,27 +12,27 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Server struct {
+type PostsServer struct {
 	posts []*pb.Post
 	mu    sync.Mutex
 	next  int64
 }
 
-func NewServer() *Server {
-	return &Server{
+func NewPostsServer() *PostsServer {
+	return &PostsServer{
 		posts: []*pb.Post{},
 		next:  1,
 	}
 }
 
-// AddPost implements the Twirp service method for adding a post.
-func (s *Server) AddPost(ctx context.Context, req *pb.AddPostRequest) (*pb.AddPostResponse, error) {
-	author := ctx.Value("user_id").(string) // Assuming user ID is injected in context by middleware
+// AddPost implements the Twirp PostService method for adding a post.
+func (s *PostsServer) AddPost(ctx context.Context, req *pb.AddPostRequest) (*pb.AddPostResponse, error) {
+	//author := ctx.Value("user_id").(string) // Assuming user ID is injected in context by middleware
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	post := &pb.Post{
 		Id:        s.next,
-		AuthorId:  author,
+		AuthorId:  "1",
 		Text:      req.Text,
 		CreatedAt: timestamppb.New(time.Now()),
 	}
@@ -42,8 +42,8 @@ func (s *Server) AddPost(ctx context.Context, req *pb.AddPostRequest) (*pb.AddPo
 	return &pb.AddPostResponse{Post: post}, nil
 }
 
-// DeletePost implements the Twirp service method for deleting a post.
-func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
+// DeletePost implements the Twirp PostService method for deleting a post.
+func (s *PostsServer) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, post := range s.posts {
@@ -55,8 +55,8 @@ func (s *Server) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb
 	return nil, twirp.NotFoundError("post not found")
 }
 
-// GetFeed implements the Twirp service method for getting the feed.
-func (s *Server) GetFeed(ctx context.Context, req *pb.GetFeedRequest) (*pb.GetFeedResponse, error) {
+// GetFeed implements the Twirp PostService method for getting the feed.
+func (s *PostsServer) GetFeed(ctx context.Context, req *pb.GetFeedRequest) (*pb.GetFeedResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	list := make([]*pb.Post, len(s.posts))
