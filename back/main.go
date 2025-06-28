@@ -1,16 +1,13 @@
 package main
 
 import (
-    "log"
-    "net/http"
+	"net/http"
 
-    "socialnet/service"
+	"socialnet/proto/posts"
+	"socialnet/service"
 )
 
 func main() {
-    srv := service.NewServer()
-    log.Println("starting server on :8080")
-    if err := http.ListenAndServe(":8080", srv); err != nil {
-        log.Fatal(err)
-    }
+	srv := posts.NewPostServiceServer(service.NewServer())
+	http.ListenAndServe(":8080", srv)
 }

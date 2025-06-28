@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package socialnet;
+
+import "google/protobuf/timestamp.proto";
+//option go_package = "github.com/materko /yourproject/socialnet;socialnet";
+option go_package = "socialnet/proto/posts";
+
+message Post {
+  int64 id = 1;
+  string author_id = 2;
+  string text = 3;
+  google.protobuf.Timestamp created_at = 4;
+  bool deleted = 5;
+}
+
+message AddPostRequest {
+  string text = 1;
+}
+
+message AddPostResponse {
+  Post post = 1;
+}
+
+message DeletePostRequest {
+  int64 id = 1;
+}
+
+message DeletePostResponse {
+  Post post = 1;  // optional, depending on whether you want to return the deleted post
+}
+
+message GetFeedRequest {
+}
+
+message GetFeedResponse {
+  repeated Post posts = 1;
+}
+
+service PostService {
+  rpc AddPost(AddPostRequest) returns (AddPostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
+}
