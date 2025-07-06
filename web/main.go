@@ -13,8 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-var client *mongo.Client
-
 func main() {
 	// Connect to MongoDB
 	mongoURI := os.Getenv("MONGODB_URI")
